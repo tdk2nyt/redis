@@ -1030,7 +1030,8 @@ int slaveTryPartialResynchronization(int fd) {
 
 void syncWithMaster(aeEventLoop *el, int fd, void *privdata, int mask) {
     char tmpfile[256], *err;
-    int dfd, maxtries = 5;
+    int dfd = -1;
+    int maxtries = 5;
     int sockerr = 0, psync_result;
     socklen_t errlen = sizeof(sockerr);
     REDIS_NOTUSED(el);
@@ -1189,6 +1190,10 @@ void syncWithMaster(aeEventLoop *el, int fd, void *privdata, int mask) {
 
 error:
     close(fd);
+    if( dfd > 0 )
+    {
+        close(dfd);
+    }
     server.repl_transfer_s = -1;
     server.repl_state = REDIS_REPL_CONNECT;
     return;
